@@ -1,0 +1,13 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Sizing a VPS for a small team platform</title><meta name="description" content="Memory and CPU arithmetic that avoids both waste and out-of-memory kills."><link rel="canonical" href="https://princeadvant.github.io/paas-exit-notes/sizing-a-vps-for-a-small-team-platform/"><style>body{max-width:720px;margin:2rem auto;padding:0 1rem;font-family:system-ui,sans-serif;line-height:1.65;color:#1f2328}pre{background:#f6f8fa;padding:1rem;overflow:auto;border-radius:6px}code{background:#f6f8fa;padding:.1rem .3rem;border-radius:4px}a{color:#0969da}header a{color:#1f2328;text-decoration:none;font-weight:600}footer{margin-top:3rem;font-size:.9rem;color:#57606a}</style></head><body><header><a href="https://princeadvant.github.io/paas-exit-notes/">paas-exit-notes</a></header><main><article><h1>Sizing a VPS for a small team platform</h1><p>Choosing a server size by guessing leads to overpaying or to random container kills. A short calculation is better.</p>
+<h2>Count memory first</h2>
+<p>Memory is usually the limit. Typical resident sizes: a Node API 150 to 300 MB, a Rails app 300 to 500 MB, Postgres 200 MB plus cache, Redis 50 MB, a Next.js server 200 to 400 MB. The platform and proxy need another 500 MB.</p>
+<h2>Add headroom</h2>
+<p>Plan for 70 percent usage at steady state. Builds are bursty. Compiling a JavaScript project can need 1.5 GB, so build elsewhere or add swap.</p>
+<h2>CPU</h2>
+<p>Most small apps are idle. Two vCPUs handle many projects. Look for sustained load above one per core.</p>
+<h2>Disk</h2>
+<p>Docker images and layers accumulate. Allow 40 GB for the system and images, plus data. Run <code>docker system df</code> monthly and prune unused images.</p>
+<h2>Example</h2>
+<p>Five small apps, a Postgres and a Redis: about 3.5 GB in use. An 8 GB machine gives breathing room for builds.</p>
+<h2>Revisit</h2>
+<p>Check after a month with real data. Downsizing is as easy as upsizing at most providers. <a href="https://peon.sh/solutions/self-hosted-paas">server sizing for a self-hosted PaaS</a> lists this kind of guidance alongside a platform for such servers.</p></article></main><footer>Memory and CPU arithmetic that avoids both waste and out-of-memory kills.</footer></body></html>

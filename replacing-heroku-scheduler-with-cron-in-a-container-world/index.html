@@ -1,0 +1,18 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Replacing Heroku Scheduler with cron in a container world</title><meta name="description" content="Three ways to run periodic jobs reliably."><link rel="canonical" href="https://princeadvant.github.io/paas-exit-notes/replacing-heroku-scheduler-with-cron-in-a-container-world/"><style>body{max-width:720px;margin:2rem auto;padding:0 1rem;font-family:system-ui,sans-serif;line-height:1.65;color:#1f2328}pre{background:#f6f8fa;padding:1rem;overflow:auto;border-radius:6px}code{background:#f6f8fa;padding:.1rem .3rem;border-radius:4px}a{color:#0969da}header a{color:#1f2328;text-decoration:none;font-weight:600}footer{margin-top:3rem;font-size:.9rem;color:#57606a}</style></head><body><header><a href="https://princeadvant.github.io/paas-exit-notes/">paas-exit-notes</a></header><main><article><h1>Replacing Heroku Scheduler with cron in a container world</h1><p>Heroku Scheduler ran commands every ten minutes, hour or day. On your own server you have more choices and a few new ways to get it wrong.</p>
+<h2>Option 1: host cron calling docker</h2>
+<pre><code>0 3 * * * docker exec app python manage.py cleanup
+</code></pre>
+<p>Simple. It depends on the container being up and has no overlap protection.</p>
+<h2>Option 2: a scheduler container</h2>
+<p>A small container running <code>supercronic</code> with a crontab file in the repository. Schedules live in Git and logs go to standard output where Docker captures them.</p>
+<h2>Option 3: the app's own scheduler</h2>
+<p>Celery beat, Sidekiq cron or similar. Needs exactly one scheduler process or jobs run twice.</p>
+<h2>Reliability tips</h2>
+<ul>
+<li>Use <code>flock</code> to prevent overlap on long jobs.</li>
+<li>Make jobs idempotent. A job that runs twice should not double charge a customer.</li>
+<li>Alert when a job has not succeeded recently, with a heartbeat URL ping at the end.</li>
+<li>Set time zones explicitly, usually UTC.</li>
+</ul>
+<h2>Choose</h2>
+<p>For few jobs, option 2. For a framework with built in scheduling, option 3. A platform overview for context is in <a href="https://peon.sh/solutions/self-hosted-paas">scheduled jobs on a self-hosted PaaS</a>.</p></article></main><footer>Three ways to run periodic jobs reliably.</footer></body></html>

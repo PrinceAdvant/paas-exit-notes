@@ -1,0 +1,17 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Log drains without a log drain: keeping logs on a single host</title><meta name="description" content="Capturing container output, rotating it and shipping it when needed."><link rel="canonical" href="https://princeadvant.github.io/paas-exit-notes/log-drains-without-a-log-drain-keeping-logs-on-a-single-host/"><style>body{max-width:720px;margin:2rem auto;padding:0 1rem;font-family:system-ui,sans-serif;line-height:1.65;color:#1f2328}pre{background:#f6f8fa;padding:1rem;overflow:auto;border-radius:6px}code{background:#f6f8fa;padding:.1rem .3rem;border-radius:4px}a{color:#0969da}header a{color:#1f2328;text-decoration:none;font-weight:600}footer{margin-top:3rem;font-size:.9rem;color:#57606a}</style></head><body><header><a href="https://princeadvant.github.io/paas-exit-notes/">paas-exit-notes</a></header><main><article><h1>Log drains without a log drain: keeping logs on a single host</h1><p>Heroku collected logs from every dyno and drained them to a service. Containers on your own server give you the raw pieces to rebuild this.</p>
+<h2>Write to standard output</h2>
+<p>Applications should log to stdout and stderr. Docker captures it. Avoid log files inside containers.</p>
+<h2>Limit growth</h2>
+<pre><code>{
+  &quot;log-driver&quot;: &quot;local&quot;,
+  &quot;log-opts&quot;: { &quot;max-size&quot;: &quot;20m&quot;, &quot;max-file&quot;: &quot;5&quot; }
+}
+</code></pre>
+<p>Put this in <code>/etc/docker/daemon.json</code> and restart Docker. The <code>local</code> driver is more compact than the default JSON driver.</p>
+<h2>Search</h2>
+<p>For quick questions: <code>docker logs --since 1h app | grep ERROR</code>. For history across containers, ship logs to Loki with a Promtail or Alloy agent, or to a hosted service with a free tier.</p>
+<h2>Structure</h2>
+<p>JSON logs with request ids make searching reliable. Pass a request id through the proxy and into the app.</p>
+<h2>Retention and privacy</h2>
+<p>Decide how long to keep logs and scrub personal data. Debug logs in production are a common privacy problem.</p>
+<p>For an overview of the platform around this, see <a href="https://peon.sh/solutions/self-hosted-paas">logs on a self-hosted PaaS</a>.</p></article></main><footer>Capturing container output, rotating it and shipping it when needed.</footer></body></html>

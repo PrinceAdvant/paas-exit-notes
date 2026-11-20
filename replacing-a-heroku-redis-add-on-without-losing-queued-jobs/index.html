@@ -1,0 +1,14 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Replacing a Heroku Redis add-on without losing queued jobs</title><meta name="description" content="Cache versus queue use, persistence settings and a safe switch."><link rel="canonical" href="https://princeadvant.github.io/paas-exit-notes/replacing-a-heroku-redis-add-on-without-losing-queued-jobs/"><style>body{max-width:720px;margin:2rem auto;padding:0 1rem;font-family:system-ui,sans-serif;line-height:1.65;color:#1f2328}pre{background:#f6f8fa;padding:1rem;overflow:auto;border-radius:6px}code{background:#f6f8fa;padding:.1rem .3rem;border-radius:4px}a{color:#0969da}header a{color:#1f2328;text-decoration:none;font-weight:600}footer{margin-top:3rem;font-size:.9rem;color:#57606a}</style></head><body><header><a href="https://princeadvant.github.io/paas-exit-notes/">paas-exit-notes</a></header><main><article><h1>Replacing a Heroku Redis add-on without losing queued jobs</h1><p>Redis on Heroku is often used as both a cache and a job queue. These need different treatment when you run it yourself.</p>
+<h2>Decide what is in it</h2>
+<p>Cache data can be lost. Job queues usually cannot. Look at keys with <code>redis-cli --scan --pattern '*' | head</code> and identify frameworks that use it, such as Sidekiq or Bull.</p>
+<h2>Persistence</h2>
+<p>For queues, enable append only mode:</p>
+<pre><code>redis-server --appendonly yes --appendfsync everysec
+</code></pre>
+<p>Mount <code>/data</code> as a volume. For a pure cache, disable persistence and set <code>maxmemory</code> with <code>allkeys-lru</code>.</p>
+<h2>Memory limit</h2>
+<p>Without <code>maxmemory</code>, Redis grows until the OOM killer picks something, possibly your database. Set the limit lower than the container's memory limit.</p>
+<h2>Switching safely</h2>
+<p>Drain queues first: stop enqueuing, let workers finish, switch the URL, start workers on the new instance. For caches, just switch and accept cold misses.</p>
+<h2>Security</h2>
+<p>Never publish port 6379. Use a password and an internal network only. See <a href="https://peon.sh/solutions/self-hosted-paas">Redis on a self-hosted PaaS</a> for the application deployment side.</p></article></main><footer>Cache versus queue use, persistence settings and a safe switch.</footer></body></html>

@@ -1,0 +1,13 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>From one server to two: the first scaling step for a small platform</title><meta name="description" content="Separating the database, then adding a second app host."><link rel="canonical" href="https://princeadvant.github.io/paas-exit-notes/from-one-server-to-two-the-first-scaling-step-for-a-small-platform/"><style>body{max-width:720px;margin:2rem auto;padding:0 1rem;font-family:system-ui,sans-serif;line-height:1.65;color:#1f2328}pre{background:#f6f8fa;padding:1rem;overflow:auto;border-radius:6px}code{background:#f6f8fa;padding:.1rem .3rem;border-radius:4px}a{color:#0969da}header a{color:#1f2328;text-decoration:none;font-weight:600}footer{margin-top:3rem;font-size:.9rem;color:#57606a}</style></head><body><header><a href="https://princeadvant.github.io/paas-exit-notes/">paas-exit-notes</a></header><main><article><h1>From one server to two: the first scaling step for a small platform</h1><p>One server carries a surprising amount of load. When it stops being enough, scale in the least risky order.</p>
+<h2>Step 1: bigger machine</h2>
+<p>Vertical scaling is the simplest. Resize the VPS, which usually means a short reboot. Do this before anything more complex.</p>
+<h2>Step 2: move the database</h2>
+<p>A database on its own server stops competing with apps for memory and disk. Use a private network between machines, and restrict the port to the app server's address.</p>
+<h2>Step 3: a second app server</h2>
+<p>Run the same containers on a second host behind a load balancer or DNS round robin. This requires apps to be stateless: sessions in Redis or signed cookies, uploads in object storage.</p>
+<h2>What to avoid</h2>
+<p>Do not add orchestration complexity before you need it. Kubernetes is a large step with a large operations cost. Many products never leave step two.</p>
+<h2>Measure first</h2>
+<p>Find the real bottleneck with <code>htop</code>, <code>iostat</code> and slow query logs. Scaling the wrong layer wastes money.</p>
+<h2>Keep it simple to rebuild</h2>
+<p>Whatever you build, keep a script that recreates a server from scratch. <a href="https://peon.sh/solutions/self-hosted-paas">scaling a self-hosted PaaS beyond one server</a> describes a tool for running many apps from one place.</p></article></main><footer>Separating the database, then adding a second app host.</footer></body></html>

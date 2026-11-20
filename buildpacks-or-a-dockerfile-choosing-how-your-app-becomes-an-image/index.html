@@ -1,0 +1,15 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Buildpacks or a Dockerfile: choosing how your app becomes an image</title><meta name="description" content="What automatic detection gives you and what a Dockerfile gives back."><link rel="canonical" href="https://princeadvant.github.io/paas-exit-notes/buildpacks-or-a-dockerfile-choosing-how-your-app-becomes-an-image/"><style>body{max-width:720px;margin:2rem auto;padding:0 1rem;font-family:system-ui,sans-serif;line-height:1.65;color:#1f2328}pre{background:#f6f8fa;padding:1rem;overflow:auto;border-radius:6px}code{background:#f6f8fa;padding:.1rem .3rem;border-radius:4px}a{color:#0969da}header a{color:#1f2328;text-decoration:none;font-weight:600}footer{margin-top:3rem;font-size:.9rem;color:#57606a}</style></head><body><header><a href="https://princeadvant.github.io/paas-exit-notes/">paas-exit-notes</a></header><main><article><h1>Buildpacks or a Dockerfile: choosing how your app becomes an image</h1><p>When leaving a platform that built your app automatically, you must choose how images get built. Both routes are valid.</p>
+<h2>Buildpacks and Nixpacks</h2>
+<p>They detect the language, install dependencies and produce an image. You write nothing, and upgrades to the build logic arrive with the tool. The cost is less control and sometimes surprising defaults, such as the Node version.</p>
+<h2>A Dockerfile</h2>
+<p>You decide the base image, layers and final size. It is more work, but behavior is explicit and identical on every machine.</p>
+<h2>A pragmatic path</h2>
+<p>Start with automatic detection to get running fast. Once the app stabilizes, write a Dockerfile with a multi stage build, pinned base image and a non root user.</p>
+<h2>Things to pin either way</h2>
+<ul>
+<li>Language version (Node, Python, Ruby).</li>
+<li>Base image tag, ideally with a digest.</li>
+<li>Dependency lockfiles.</li>
+</ul>
+<h2>Cache</h2>
+<p>Order Dockerfile layers so dependency installation comes before copying source. Builds become much faster. A platform that supports both styles on your VPS is described in <a href="https://peon.sh/solutions/self-hosted-paas">building apps on a self-hosted PaaS</a>.</p></article></main><footer>What automatic detection gives you and what a Dockerfile gives back.</footer></body></html>
